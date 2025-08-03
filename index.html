@@ -24,10 +24,15 @@
     <h1>Math Exam - Grade 5 (ICSE)</h1>
 
     <div class="login-panel" id="login-panel">
-      <h2>Student Login</h2>
+      <h2>Login</h2>
+      <label for="role">Select Role:</label>
+      <select id="role">
+        <option value="student">Student</option>
+        <option value="admin">Admin</option>
+      </select>
       <label for="student-name">Enter Your Name:</label>
       <input type="text" id="student-name">
-      <button onclick="loginStudent()">Login</button>
+      <button onclick="loginUser()">Login</button>
     </div>
 
     <div class="welcome" id="welcome-message" style="display:none;"></div>
@@ -36,32 +41,13 @@
       <h2>Admin Configuration</h2>
       <label for="duration">Set Exam Duration (minutes):</label>
       <input type="number" id="duration" value="60">
-      <button onclick="startExam()">Start Exam</button>
+      <button onclick="generateQuestions()">Start Exam</button>
       <button onclick="viewResults()">View All Results</button>
     </div>
 
     <div class="timer" id="timer"></div>
 
-    <form id="exam-form" style="display:none;" onsubmit="storeResults(event)">
-      <div class="question">
-        <label>1. Add: 4,356 + 2,789</label>
-        <input type="text" name="q1">
-      </div>
-      <div class="question">
-        <label>2. Subtract: 8,000 – 3,645</label>
-        <input type="text" name="q2">
-      </div>
-      <div class="question">
-        <label>3. Multiply: 234 × 6</label>
-        <input type="text" name="q3">
-      </div>
-      <div class="question">
-        <label>4. Divide: 1,728 ÷ 12</label>
-        <input type="text" name="q4">
-      </div>
-      <!-- Add more questions as needed -->
-      <button type="submit">Submit Answers</button>
-    </form>
+    <form id="exam-form" style="display:none;" onsubmit="storeResults(event)"></form>
 
     <div class="results-panel" id="results-panel" style="display:none;">
       <h2>Submitted Results</h2>
@@ -72,32 +58,66 @@
   <script>
     let timerInterval;
     let studentName = '';
+    let userRole = '';
 
-    function loginStudent() {
+    const questionBank = [
+      { q: "Add: 4,356 + 2,789", a: "7145" },
+      { q: "Subtract: 8,000 – 3,645", a: "4355" },
+      { q: "Multiply: 234 × 6", a: "1404" },
+      { q: "Divide: 1,728 ÷ 12", a: "144" },
+      { q: "Write the Roman numeral for 89", a: "LXXXIX" },
+      { q: "Find the HCF of 24 and 36", a: "12" },
+      { q: "Convert 3 km 250 m into meters", a: "3250" },
+      { q: "Round off 6,487 to the nearest hundred", a: "6500" },
+      { q: "What is the place value of 5 in 45,678?", a: "500" },
+      { q: "Write the number name for 7,04,205", a: "Seven lakh four thousand two hundred five" }
+      // Add more questions here to support up to 60 questions
+    ];
+
+    function loginUser() {
+      userRole = document.getElementById('role').value;
       studentName = document.getElementById('student-name').value.trim();
       if (studentName === '') {
         alert('Please enter your name to proceed.');
         return;
       }
       document.getElementById('login-panel').style.display = 'none';
-      document.getElementById('admin-panel').style.display = 'block';
       const welcome = document.getElementById('welcome-message');
-      welcome.textContent = `Welcome, ${studentName}! Get ready for your math exam.`;
+      welcome.textContent = `Welcome, ${studentName}!`;
       welcome.style.display = 'block';
+
+      if (userRole === 'admin') {
+        document.getElementById('admin-panel').style.display = 'block';
+      } else {
+        document.getElementById('admin-panel').style.display = 'none';
+        generateQuestions();
+      }
     }
 
-    function startExam() {
+    function generateQuestions() {
       const duration = parseInt(document.getElementById('duration').value);
-      const endTime = Date.now() + duration * 60000;
-      document.getElementById('exam-form').style.display = 'block';
+      const numQuestions = Math.min(duration, questionBank.length); // 1 question per minute
+      const selectedQuestions = questionBank.slice(0, numQuestions);
+
+      const form = document.getElementById('exam-form');
+      form.innerHTML = '';
+      selectedQuestions.forEach((item, index) => {
+        const div = document.createElement('div');
+        div.className = 'question';
+        div.innerHTML = `<label>${index + 1}. ${item.q}</label><input type="text" name="q${index + 1}">`;
+        form.appendChild(div);
+      });
+      form.innerHTML += '<button type="submit">Submit Answers</button>';
+      form.style.display = 'block';
       document.getElementById('timer').style.display = 'block';
 
+      const endTime = Date.now() + duration * 60000;
       timerInterval = setInterval(() => {
         const remaining = endTime - Date.now();
         if (remaining <= 0) {
           clearInterval(timerInterval);
           document.getElementById('timer').textContent = 'Time is up!';
-          document.getElementById('exam-form').submit();
+          form.submit();
         } else {
           const minutes = Math.floor(remaining / 60000);
           const seconds = Math.floor((remaining % 60000) / 1000);
@@ -110,16 +130,24 @@
       event.preventDefault();
       const formData = new FormData(document.getElementById('exam-form'));
       const answers = {};
+      let score = 0;
       formData.forEach((value, key) => {
         answers[key] = value;
+        const index = parseInt(key.replace('q', '')) - 1;
+        if (value.trim().toLowerCase() === questionBank[index].a.toLowerCase()) {
+          score++;
+        }
       });
       const result = {
         student: studentName,
         answers: answers,
+        score: score,
+        total: Object.keys(answers).length,
         timestamp: new Date().toISOString()
       };
       localStorage.setItem(`math_exam_${studentName}`, JSON.stringify(result));
-      alert('Your answers have been submitted successfully!');
+      alert(`Your answers have been submitted successfully!
+Score: ${score}/${result.total}`);
     }
 
     function viewResults() {
@@ -129,7 +157,7 @@
       for (let key in localStorage) {
         if (key.startsWith('math_exam_')) {
           const data = JSON.parse(localStorage.getItem(key));
-          const formatted = `<strong>${data.student}</strong> - ${new Date(data.timestamp).toLocaleString()}<br><pre>${JSON.stringify(data.answers, null, 2)}</pre>`;
+          const formatted = `<strong>${data.student}</strong> - ${new Date(data.timestamp).toLocaleString()}<br>Score: ${data.score}/${data.total}<br><pre>${JSON.stringify(data.answers, null, 2)}</pre>`;
           resultsContent.innerHTML += formatted;
         }
       }
