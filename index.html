@@ -90,7 +90,15 @@
     let currentQuestions = [];
 
     function generateQuestions() {
-      const duration = parseInt(document.getElementById('duration').value);
+      let duration;
+      // If admin is logged in, get from input and store in localStorage
+      if (userRole === 'admin') {
+        duration = parseInt(document.getElementById('duration').value);
+        localStorage.setItem('math_exam_duration', duration);
+      } else {
+        // Student: get duration from localStorage, fallback to 60
+        duration = parseInt(localStorage.getItem('math_exam_duration')) || 60;
+      }
       const shuffled = fullQuestionBank.sort(() => 0.5 - Math.random());
       currentQuestions = shuffled.slice(0, duration);
 
