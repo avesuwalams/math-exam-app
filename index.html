@@ -60,19 +60,12 @@
     let studentName = '';
     let userRole = '';
 
-    const questionBank = [
-      { q: "Add: 4,356 + 2,789", a: "7145" },
-      { q: "Subtract: 8,000 – 3,645", a: "4355" },
-      { q: "Multiply: 234 × 6", a: "1404" },
-      { q: "Divide: 1,728 ÷ 12", a: "144" },
-      { q: "Write the Roman numeral for 89", a: "LXXXIX" },
-      { q: "Find the HCF of 24 and 36", a: "12" },
-      { q: "Convert 3 km 250 m into meters", a: "3250" },
-      { q: "Round off 6,487 to the nearest hundred", a: "6500" },
-      { q: "What is the place value of 5 in 45,678?", a: "500" },
-      { q: "Write the number name for 7,04,205", a: "Seven lakh four thousand two hundred five" }
-      // Add more questions here to support up to 60 questions
-    ];
+    const fullQuestionBank = Array.from({ length: 100 }, (_, i) => {
+      return {
+        q: `Question ${i + 1}: What is ${i + 1} + ${i + 2}?`,
+        a: `${i + 1 + i + 2}`
+      };
+    });
 
     function loginUser() {
       userRole = document.getElementById('role').value;
@@ -94,14 +87,16 @@
       }
     }
 
+    let currentQuestions = [];
+
     function generateQuestions() {
       const duration = parseInt(document.getElementById('duration').value);
-      const numQuestions = Math.min(duration, questionBank.length); // 1 question per minute
-      const selectedQuestions = questionBank.slice(0, numQuestions);
+      const shuffled = fullQuestionBank.sort(() => 0.5 - Math.random());
+      currentQuestions = shuffled.slice(0, duration);
 
       const form = document.getElementById('exam-form');
       form.innerHTML = '';
-      selectedQuestions.forEach((item, index) => {
+      currentQuestions.forEach((item, index) => {
         const div = document.createElement('div');
         div.className = 'question';
         div.innerHTML = `<label>${index + 1}. ${item.q}</label><input type="text" name="q${index + 1}">`;
@@ -131,11 +126,18 @@
       const formData = new FormData(document.getElementById('exam-form'));
       const answers = {};
       let score = 0;
+      let feedback = '';
       formData.forEach((value, key) => {
         answers[key] = value;
         const index = parseInt(key.replace('q', '')) - 1;
-        if (value.trim().toLowerCase() === questionBank[index].a.toLowerCase()) {
+        const correct = currentQuestions[index].a;
+        if (value.trim() === correct) {
           score++;
+          feedback += `${key}: Correct
+`;
+        } else {
+          feedback += `${key}: Incorrect (Your answer: ${value}, Correct answer: ${correct})
+`;
         }
       });
       const result = {
@@ -143,11 +145,21 @@
         answers: answers,
         score: score,
         total: Object.keys(answers).length,
+        feedback: feedback,
         timestamp: new Date().toISOString()
       };
       localStorage.setItem(`math_exam_${studentName}`, JSON.stringify(result));
       alert(`Your answers have been submitted successfully!
 Score: ${score}/${result.total}`);
+      const blob = new Blob([`Student: ${studentName}
+Score: ${score}/${result.total}
+
+Feedback:
+${feedback}`], { type: 'text/plain' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `${studentName}_score_report.txt`;
+      link.click();
     }
 
     function viewResults() {
@@ -157,7 +169,7 @@ Score: ${score}/${result.total}`);
       for (let key in localStorage) {
         if (key.startsWith('math_exam_')) {
           const data = JSON.parse(localStorage.getItem(key));
-          const formatted = `<strong>${data.student}</strong> - ${new Date(data.timestamp).toLocaleString()}<br>Score: ${data.score}/${data.total}<br><pre>${JSON.stringify(data.answers, null, 2)}</pre>`;
+          const formatted = `<strong>${data.student}</strong> - ${new Date(data.timestamp).toLocaleString()}<br>Score: ${data.score}/${data.total}<br><pre>${data.feedback}</pre>`;
           resultsContent.innerHTML += formatted;
         }
       }
