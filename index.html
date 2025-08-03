@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Math Exam - Grade 5 ICSE</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    .container { max-width: 800px; margin: auto; }
+    h1, h2 { text-align: center; }
+    .question { margin-bottom: 15px; }
+    .timer { font-size: 1.2em; color: red; text-align: right; }
+    .admin-panel, .login-panel, .results-panel { margin-bottom: 30px; padding: 10px; border: 1px solid #ccc; }
+    label { display: block; margin-top: 10px; }
+    input[type="number"], input[type="text"] { width: 200px; }
+    button { margin-top: 10px; }
+    .welcome { font-size: 1.1em; margin-bottom: 20px; color: green; text-align: center; }
+    .results { font-size: 0.95em; margin-top: 20px; }
+    .results pre { background: #f4f4f4; padding: 10px; border: 1px solid #ddd; overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Math Exam - Grade 5 (ICSE)</h1>
+
+    <div class="login-panel" id="login-panel">
+      <h2>Student Login</h2>
+      <label for="student-name">Enter Your Name:</label>
+      <input type="text" id="student-name">
+      <button onclick="loginStudent()">Login</button>
+    </div>
+
+    <div class="welcome" id="welcome-message" style="display:none;"></div>
+
+    <div class="admin-panel" id="admin-panel" style="display:none;">
+      <h2>Admin Configuration</h2>
+      <label for="duration">Set Exam Duration (minutes):</label>
+      <input type="number" id="duration" value="60">
+      <button onclick="startExam()">Start Exam</button>
+      <button onclick="viewResults()">View All Results</button>
+    </div>
+
+    <div class="timer" id="timer"></div>
+
+    <form id="exam-form" style="display:none;" onsubmit="storeResults(event)">
+      <div class="question">
+        <label>1. Add: 4,356 + 2,789</label>
+        <input type="text" name="q1">
+      </div>
+      <div class="question">
+        <label>2. Subtract: 8,000 – 3,645</label>
+        <input type="text" name="q2">
+      </div>
+      <div class="question">
+        <label>3. Multiply: 234 × 6</label>
+        <input type="text" name="q3">
+      </div>
+      <div class="question">
+        <label>4. Divide: 1,728 ÷ 12</label>
+        <input type="text" name="q4">
+      </div>
+      <!-- Add more questions as needed -->
+      <button type="submit">Submit Answers</button>
+    </form>
+
+    <div class="results-panel" id="results-panel" style="display:none;">
+      <h2>Submitted Results</h2>
+      <div class="results" id="results-content"></div>
+    </div>
+  </div>
+
+  <script>
+    let timerInterval;
+    let studentName = '';
+
+    function loginStudent() {
+      studentName = document.getElementById('student-name').value.trim();
+      if (studentName === '') {
+        alert('Please enter your name to proceed.');
+        return;
+      }
+      document.getElementById('login-panel').style.display = 'none';
+      document.getElementById('admin-panel').style.display = 'block';
+      const welcome = document.getElementById('welcome-message');
+      welcome.textContent = `Welcome, ${studentName}! Get ready for your math exam.`;
+      welcome.style.display = 'block';
+    }
+
+    function startExam() {
+      const duration = parseInt(document.getElementById('duration').value);
+      const endTime = Date.now() + duration * 60000;
+      document.getElementById('exam-form').style.display = 'block';
+      document.getElementById('timer').style.display = 'block';
+
+      timerInterval = setInterval(() => {
+        const remaining = endTime - Date.now();
+        if (remaining <= 0) {
+          clearInterval(timerInterval);
+          document.getElementById('timer').textContent = 'Time is up!';
+          document.getElementById('exam-form').submit();
+        } else {
+          const minutes = Math.floor(remaining / 60000);
+          const seconds = Math.floor((remaining % 60000) / 1000);
+          document.getElementById('timer').textContent = `Time Remaining: ${minutes}m ${seconds}s`;
+        }
+      }, 1000);
+    }
+
+    function storeResults(event) {
+      event.preventDefault();
+      const formData = new FormData(document.getElementById('exam-form'));
+      const answers = {};
+      formData.forEach((value, key) => {
+        answers[key] = value;
+      });
+      const result = {
+        student: studentName,
+        answers: answers,
+        timestamp: new Date().toISOString()
+      };
+      localStorage.setItem(`math_exam_${studentName}`, JSON.stringify(result));
+      alert('Your answers have been submitted successfully!');
+    }
+
+    function viewResults() {
+      const resultsPanel = document.getElementById('results-panel');
+      const resultsContent = document.getElementById('results-content');
+      resultsContent.innerHTML = '';
+      for (let key in localStorage) {
+        if (key.startsWith('math_exam_')) {
+          const data = JSON.parse(localStorage.getItem(key));
+          const formatted = `<strong>${data.student}</strong> - ${new Date(data.timestamp).toLocaleString()}<br><pre>${JSON.stringify(data.answers, null, 2)}</pre>`;
+          resultsContent.innerHTML += formatted;
+        }
+      }
+      resultsPanel.style.display = 'block';
+    }
+  </script>
+</body>
+</html>
+
