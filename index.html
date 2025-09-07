@@ -224,7 +224,7 @@
       for (let key in localStorage) {
         if (key.startsWith('math_exam_')) {
           const data = JSON.parse(localStorage.getItem(key));
-          const formatted = `<strong>${data.student}</strong> - ${new Date(data.timestamp).toLocaleString()}<br>Score: ${data.score}/${data.total}<br><pre>${data.feedback}</pre>`;
+          const formatted = `<strong>${data.student}</strong> - ${new Date(data.timestamp).toLocaleString()}<br>Score: ${data.score}/${data.totalPoints}<br><pre>${data.feedback}</pre>`;
           resultsContent.innerHTML += formatted;
         }
       }
