@@ -31,6 +31,7 @@
   { "q": "A recipe needs 2 cups flour for 5 muffins. How much flour for 20 muffins?", "a": "8", "points": 1 },
 
   { "q": "What is 15% of 240?", "a": "36", "points": 1 },
+  { "q": "A price reduced by 25%: original 400, new price?", "a": "300", "points": 1 },
 
   { "q": "Find the average of 12, 15, 18, 21 and 24", "a": "18", "points": 1 },
   { "q": "If the average of five numbers is 20 and four of them are 18, 22, 17 and 23, find the fifth", "a": "20", "points": 1 },
@@ -45,6 +46,8 @@
 
   { "q": "Ria has 5 boxes of pencils. Each box has 24 pencils. She gives 38 pencils away. How many pencils remain?", "a": "82", "points": 2, "partials": [{ "answer": "120", "credit": 1 }] },
   { "q": "A bus travels 90 km in 2 hours. What is its average speed (km/h)?", "a": "45", "points": 2 },
+
+  { "q": "A shop sells 3 notebooks for 96. How much for 7 notebooks?", "a": "224", "points": 2 },
 
   { "q": "Find the next term in sequence defined by a_n = 2^n × 3 (n=1..): what is a_4?", "a": "48", "points": 2 },
 
@@ -71,5 +74,21 @@
 
   { "q": "Solve: 4³ - (5 × 3) + 12", "a": "55", "points": 2 },
   { "q": "If 9x = 243, find x", "a": "27", "points": 1 },
-  { "q": "Find the average (mean) of 14, 18, 22, 26, 30", "a": "22", "points": 1 }
+  { "q": "Find the average (mean) of 14, 18, 22, 26, 30", "a": "22", "points": 1 },
+
+  { "q": "What is 7 × 13?", "a": "91", "points": 1 },
+  { "q": "A rectangle has length 15 cm and width 7 cm. Find its perimeter.", "a": "44", "points": 1 },
+  { "q": "If 4x = 56, find x.", "a": "14", "points": 1 },
+  { "q": "List three factors of 30 (comma separated).", "a": "2,3,5", "points": 1 },
+  { "q": "What is 2/5 of 75?", "a": "30", "points": 1 },
+  { "q": "If a number is divisible by 9, what is the sum of its digits modulo 9? (0-8)", "a": "0", "points": 1 },
+  { "q": "Find LCM of 5, 6 and 10.", "a": "30", "points": 1 },
+  { "q": "Solve: 5 + (6 × 3) - 4.", "a": "19", "points": 1 },
+  { "q": "How many sides does a regular pentagon have?", "a": "5", "points": 1 },
+  { "q": "If a = 4 and b = 6, what is a^2 + b^2?", "a": "52", "points": 1 },
+  { "q": "Find the area of a square with diagonal 10 cm (answer in simplest radical form)", "a": "50", "points": 2 },
+  { "q": "Two numbers add to 90 and one is twice the other. Find the numbers.", "a": "30,60", "points": 2 },
+  { "q": "How many prime numbers are there less than 20?", "a": "8", "points": 1 },
+  { "q": "If a sequence starts 4, 9, 14, 19,... what is the 10th term?", "a": "49", "points": 2 },
+  { "q": "A cube has side 3 cm. What is its volume?", "a": "27", "points": 1 }
 ]
